@@ -1,0 +1,18 @@
+text file just for reference:
+
+WIDGET ALIGNMENTS (sticky="")
+
+The sticky option accepts a combination of the compass directions: 
+N (North), E (East), S (South), and W (West). These directions can be combined to specify how the widget should be aligned or stretched within its cell.
+
+sticky='n': Aligns the widget to the top of the cell.
+sticky='s': Aligns the widget to the bottom of the cell.
+sticky='e': Aligns the widget to the right of the cell.
+sticky='w': Aligns the widget to the left of the cell.
+sticky='nw': Aligns the widget to the top-left corner of the cell. 
+sticky='ne': Aligns the widget to the top-right corner of the cell.
+sticky='sw': Aligns the widget to the bottom-left corner of the cell.
+sticky='se': Aligns the widget to the bottom-right corner of the cell.
+sticky='ns': Stretches the widget vertically to fill the cell.
+sticky='ew': Stretches the widget horizontally to fill the cell.
+sticky='nsew': Stretches the widget both horizontally and vertically to fill the cell. 
