@@ -11,7 +11,6 @@ from backend.Rotation2Vector import RotationVector, SensitivityParams, rot2Mouse
 from backend.MouseAction import Mouse
 
 MODEL_PATH = "face_landmarker.task"
-# eye landmarks needed to calculate EAR
 
 # Define eye landmarks
 LEFT_EYE_LANDMARKS = {"top": 159, "bottom": 145, "outer": 133, "inner": 33}
