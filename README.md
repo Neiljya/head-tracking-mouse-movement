@@ -18,5 +18,32 @@ To start VisLink, run this command in the project directory:
 ```
 python main.py
 ```
-After a few seconds, a window like the following should appear.
-![first window](/readmeAssets/Screenshot 2025-03-02 023214.png)
+
+After a few seconds, a window like the following should appear:\
+![first window](/readmeAssets/screen1.png)\
+
+Once the tool loads, a window like the following will appear\
+![second window](/readmeAssets/screen2.png)\
+In this window, you can change some of the tool's properties.\
+Sensitivity: The amount to scale mouse movement so you can move your head either less or more\
+Blink interval: The max amount of time between blinks to be counted as double or triple blinks\
+Countdown: Number of seconds to start the tool from pressing start\
+
+Once you have configured your settings, press start to take you to the tool's launch window:\
+![third_window](/readmeAssets/screen3.png)\
+Here, you can change the settings one last time before starting the tool. When you press start, a countdown will appear, after which the tool will start.
+
+![fourth window](/readmeAssets/screen4.png)
+
+From here, the tool has a wide variety of different functionalities:
+- Clearly say "Start Webcam" as an alternative to pressing the start button
+- Move your head to move the cursor
+- Blink twice or clearly say "Left click" to click where the pointer is
+- Blink three times or clearly say "Right click" to right click where the pointer is
+- Blink four times to double click where the pointer is
+- Clearly say "increase sensitivity" to increase the sensitivity by 1
+- Clearly say "decrease sensitivity" to decrease the sensitivity by 1
+- Clearly say "Start typing" to enter typing mode
+- Once in typing mode, clearly say what you want to type, and it will be sent to the keyboard
+- Clearly say "Stop typing" to exit typing mode
+- Clearly say "Exit" or click the red button to quit the tool
