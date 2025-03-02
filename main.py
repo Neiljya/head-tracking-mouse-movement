@@ -20,7 +20,6 @@ class Frontend(customtkinter.CTk):
     HEADER_TEXT = "VisualLink"
     SENSITIVTY_LABEL = "Sensitivity"
     BLINK_INTERVAL_CLICK_LABEL = "Blink Interval Click"
-    #BLINK_INTERVAL_RIGHT_CLICK_LABEL = "Blink Interval Right Click"
     COUNTDOWN_LABEL = "Countdown"
 
     VOICE_COMMANDS = [
@@ -419,8 +418,7 @@ def mainTest():
     print(config_dialogue.result)
     if config_dialogue.result:
         settings = config_dialogue.result
-        app.blinkIntervalClick = settings["blinkIntervalLeftClick"]
-        #app.blinkIntervalRightClick = settings["blinkIntervalRightClick"]
+        app.blinkIntervalClick = settings["blinkInterval"]
         app.sensitivity = settings["sensitivity"]
         app.countdown = settings["countdown"]
     else:

@@ -6,15 +6,14 @@ class ConfigDialogue(customtkinter.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Initial Configuration - VisualLink")
-        self.geometry("450x550")  # Slightly larger for better spacing
+        self.geometry("450x500")  # Slightly larger for better spacing
         self.transient(parent)  # Connects this class to the parent
         self.grab_set()  # Makes this window modal
         self.resizable(False, False)  # Prevent resizing for consistent layout
 
         # Variables
         self.sensitivity = customtkinter.DoubleVar(value=1.0)
-        self.blink_left = customtkinter.IntVar(value=1)
-        self.blink_right = customtkinter.IntVar(value=2)
+        self.blink = customtkinter.IntVar(value=1)
         self.countdown = customtkinter.IntVar(value=3)
 
         # Main Frame for Content
@@ -53,39 +52,23 @@ class ConfigDialogue(customtkinter.CTkToplevel):
         )
         sens_slider.grid(row=1, column=0, pady=5, sticky="ew")
 
-        # Blink Interval Left
-        blink_left_label = customtkinter.CTkLabel(
+        # Blink Interval
+        blink_label = customtkinter.CTkLabel(
             self.settings_frame, 
-            text="Left Click Blink Interval (s):", 
+            text="Blink Interval (s):", 
             font=("Arial", 14),
             text_color="white"
         )
-        blink_left_label.grid(row=2, column=0, pady=(20, 5), sticky="w")
-        blink_left_entry = customtkinter.CTkEntry(
+        blink_label.grid(row=2, column=0, pady=(20, 5), sticky="w")
+        blink_entry = customtkinter.CTkEntry(
             self.settings_frame, 
-            textvariable=self.blink_left, 
+            textvariable=self.blink, 
             width=120, 
             font=("Arial", 12), 
             corner_radius=8
         )
-        blink_left_entry.grid(row=3, column=0, pady=5, sticky="w")
+        blink_entry.grid(row=3, column=0, pady=5, sticky="w")
 
-        # Blink Interval Right
-        blink_right_label = customtkinter.CTkLabel(
-            self.settings_frame, 
-            text="Right Click Blink Interval (s):", 
-            font=("Arial", 14),
-            text_color="white"
-        )
-        blink_right_label.grid(row=4, column=0, pady=(20, 5), sticky="w")
-        blink_right_entry = customtkinter.CTkEntry(
-            self.settings_frame, 
-            textvariable=self.blink_right, 
-            width=120, 
-            font=("Arial", 12), 
-            corner_radius=8
-        )
-        blink_right_entry.grid(row=5, column=0, pady=5, sticky="w")
 
         # Countdown Timer
         countdown_label = customtkinter.CTkLabel(
@@ -124,8 +107,7 @@ class ConfigDialogue(customtkinter.CTkToplevel):
         try:
             settings = {
                 "sensitivity": self.sensitivity.get(),
-                "blinkIntervalLeftClick": self.blink_left.get(),
-                "blinkIntervalRightClick": self.blink_right.get(),
+                "blinkInterval": self.blink.get(),
                 "countdown": self.countdown.get()
             }
             if all(v >= 0 for v in settings.values()):
