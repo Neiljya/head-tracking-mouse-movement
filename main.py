@@ -7,6 +7,7 @@ from PIL import Image, ImageTk
 import time
 import threading
 import speech_recognition as sr
+import pyautogui
 
 from backend.headPoseEstimator import HeadPoseEstimator as Tracker
 
@@ -28,7 +29,9 @@ class Frontend(customtkinter.CTk):
         "decrease sensitivity - Decreases sensitivity by 1",
         "exit/quit - Closes the application",
         "right click - (Right mouse click)",
-        "left click - (Left mouse click)"
+        "left click - (Left mouse click)",
+        "start typing - Begins typing mode (speak to type)",
+        "stop typing - Ends typing mode"
     ]
 
     def __init__(self, blinkIntervalLeftClick, blinkIntervalRightClick, sensitivity=1, countdown=3):
@@ -37,6 +40,7 @@ class Frontend(customtkinter.CTk):
         self.blinkIntervalLeftClick = blinkIntervalLeftClick
         self.blinkIntervalRightClick = blinkIntervalRightClick
         self.countdown = countdown
+        self.typing_mode = False
 
         import tkinter as tk
 
@@ -300,7 +304,7 @@ class Frontend(customtkinter.CTk):
                                  sticky="ew")
         
         # Voice commands section with better formatting
-        self.voiceCommandsTextbox = customtkinter.CTkTextbox(self.testFrame, height=150, width=250, 
+        self.voiceCommandsTextbox = customtkinter.CTkTextbox(self.testFrame, height=200, width=250, 
                                                              font=("Arial", 12), wrap="word")
         self.voiceCommandsTextbox.grid(row=5, column=0, columnspan=col_count, padx=20, pady=10, sticky="nsew")
         
@@ -328,7 +332,7 @@ class Frontend(customtkinter.CTk):
             while self.listening:
                 try:
                     audio = self.recognizer.listen(source, timeout = None)
-                    command = self.recognizer_google(audio).lower()
+                    command = self.recognizer.recognize_google(audio).lower()
                     print(f"Recognized command: {command}")
                     self.process_command(command)
                 except sr.UnknownValueError:
@@ -337,6 +341,14 @@ class Frontend(customtkinter.CTk):
                     print(f"Could not request results; {e}")
                 except Exception as e:
                     print(f"Error in voice recognition: {e}")
+
+    def type_text(self, text):
+        """Simulate typing the given text using pyautogui."""
+        try:
+            pyautogui.typewrite(text)
+            pyautogui.press("enter")  # Optional: press Enter after each phrase
+        except Exception as e:
+            print(f"Error typing text: {e}")
 
     def process_command(self, command):
             # Process commands
@@ -358,6 +370,20 @@ class Frontend(customtkinter.CTk):
             pass
         elif "left click" in command:
             pass
+        elif "start typing" in command:
+            if not self.typing_mode:
+                self.typing_mode = True
+                print("Typing mode started. Speak text to type, or say 'stop typing' to end.")
+                self.after(0, lambda: self.webcam_area.configure(text="Typing Mode: ON"))
+        elif "stop typing" in command:
+            if self.typing_mode:
+                self.typing_mode = False
+                print("Typing mode stopped.")
+                self.after(0, lambda: self.webcam_area.configure(text="Typing Mode: OFF"))
+        elif self.typing_mode:
+            # If in typing mode, treat the command as text to type
+            print(f"Typing: {command}")
+            self.after(0, lambda: self.type_text(command))
 
 
     
