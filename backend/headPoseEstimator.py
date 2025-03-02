@@ -109,6 +109,11 @@ class HeadPoseEstimator:
 
         return annotated_image
 
+<<<<<<< HEAD
+=======
+	def detect_stick(image, face_landmarks):
+		h, w, _ = image.shape
+>>>>>>> 08c7538 (s)
 
     def detect_stick_through_nose_bridge(image, face_landmarks):
         h, w, _ = image.shape
@@ -129,6 +134,7 @@ class HeadPoseEstimator:
         gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
         edges = cv2.Canny(gray_roi, 50, 150)
 
+<<<<<<< HEAD
         # Apply Hough Line Transform to detect lines
         lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=50, maxLineGap=10)
 
@@ -144,6 +150,18 @@ class HeadPoseEstimator:
                     return True  # Stick detected in the region
 
         return False  # No stick detected
+=======
+		# Check if any vertical lines are detected
+		if lines is not None:
+			for line in lines:
+				x1, y1, x2, y2 = line[0]
+				# Calculate the angle of the line (vertical if angle is near 90 degrees)
+				if abs(x1 - x2) < 10:  # Vertical line
+					cv2.line(roi, (x1, y1), (x2, y2), (0, 0, 255), 3)
+					#cv2.putText(image, "Stick detected", (nose_bridge_x - 50, nose_bridge_y - 50),
+								cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+					return True  # Stick detected in the region
+>>>>>>> 08c7538 (s)
 
 
 	# The main function for detecting glasses and stick detection

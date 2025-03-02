@@ -1,5 +1,5 @@
 import pyautogui
-from backend.Rotation2Vector import Vector
+from Rotation2Vector import Vector
 import time
 
 CLICK_PAUSE_TIME = 0.1
@@ -32,7 +32,7 @@ class Mouse:
 
         if time.time() - self.last_action_time < CLICK_PAUSE_TIME:
             return
-        
+
         self.smoothed_vector.x = (
             self.smoothing_alpha * new_vector.x +
             (1 - self.smoothing_alpha) * self.smoothed_vector.x
