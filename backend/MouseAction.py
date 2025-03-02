@@ -9,7 +9,7 @@ class Mouse:
     def __init__(self):
         self.size = pyautogui.size()
         self.position = Vector(0, 0)
-        pyautogui.FAILSAFE = True
+        pyautogui.FAILSAFE = False
 
         self.click_count = 0
         self.last_click_time = time.time()
