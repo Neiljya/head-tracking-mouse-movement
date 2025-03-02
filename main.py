@@ -19,8 +19,8 @@ class Frontend(customtkinter.CTk):
     # VARIABLES
     HEADER_TEXT = "VisualLink"
     SENSITIVTY_LABEL = "Sensitivity"
-    BLINK_INTERVAL_LEFT_CLICK_LABEL = "Blink Interval Left Click"
-    BLINK_INTERVAL_RIGHT_CLICK_LABEL = "Blink Interval Right Click"
+    BLINK_INTERVAL_CLICK_LABEL = "Blink Interval Click"
+    #BLINK_INTERVAL_RIGHT_CLICK_LABEL = "Blink Interval Right Click"
     COUNTDOWN_LABEL = "Countdown"
 
     VOICE_COMMANDS = [
@@ -34,11 +34,11 @@ class Frontend(customtkinter.CTk):
         "stop typing - Ends typing mode"
     ]
 
-    def __init__(self, blinkIntervalLeftClick, blinkIntervalRightClick, sensitivity=1, countdown=3):
+    def __init__(self, blinkIntervalClick, sensitivity=1, countdown=3):
         super().__init__()
         self.sensitivity = sensitivity
-        self.blinkIntervalLeftClick = blinkIntervalLeftClick
-        self.blinkIntervalRightClick = blinkIntervalRightClick
+        self.blinkIntervalClick = blinkIntervalClick
+        
         self.countdown = countdown
         self.typing_mode = False
 
@@ -180,13 +180,10 @@ class Frontend(customtkinter.CTk):
 
         #print(self.sensitivity)
 
-    def updateBlinkIntervalLeftClick(self, newIntervalLeft):
-        self.blinkIntervalLeftClick = newIntervalLeft
-        self.blinkIntervalLeftLabel.configure(text=f"{self.BLINK_INTERVAL_LEFT_CLICK_LABEL} ({self.blinkIntervalLeftClick:.1f})")
+    def updateBlinkIntervalClick(self, newIntervalLeft):
+        self.blinkIntervalClick = newIntervalLeft
+        self.blinkIntervalLabel.configure(text=f"{self.BLINK_INTERVAL_CLICK_LABEL} ({self.blinkIntervalClick:.1f})")
 
-    def updateBlinkIntervalRightClick(self, newIntervalRight):
-        self.blinkIntervalRightClick = newIntervalRight
-        self.blinkIntervalRightLabel.configure(text=f"{self.BLINK_INTERVAL_RIGHT_CLICK_LABEL} ({self.blinkIntervalRightClick:.1f})")
 
     # METHODS FOR INITIALIZING THE UI
 
@@ -233,52 +230,29 @@ class Frontend(customtkinter.CTk):
 
         # blink intervals
 
-        self.blinkIntervalLeftSlider = customtkinter.CTkSlider(self.testFrame,
+        self.blinkIntervalSlider = customtkinter.CTkSlider(self.testFrame,
                                                         from_=0,
                                                         to=5,
                                                         width=width,
-                                                        command=lambda value: self.updateBlinkIntervalLeftClick(value))
+                                                        command=lambda value: self.updateBlinkIntervalClick(value))
 
-        self.blinkIntervalLeftSlider.grid(row=1,
+        self.blinkIntervalSlider.grid(row=1,
                                    column=1,
                                    columnspan=col_count-1,
                                    padx=10,
                                    pady=0,
                                    sticky="ew")
 
-        self.blinkIntervalLeftLabel = customtkinter.CTkLabel(self.testFrame,
-                                                      text= f"{self.BLINK_INTERVAL_LEFT_CLICK_LABEL} ({self.blinkIntervalLeftClick})",
+        self.blinkIntervalLabel = customtkinter.CTkLabel(self.testFrame,
+                                                      text= f"{self.BLINK_INTERVAL_CLICK_LABEL} ({self.blinkIntervalClick})",
                                                       fg_color="transparent")
 
-        self.blinkIntervalLeftLabel.grid(row=1,
+        self.blinkIntervalLabel.grid(row=1,
                                   column=0,
                                   padx=20,
                                   pady=10,
                                   sticky="ew")
 
-        # blink interval right
-        self.blinkIntervalRightSlider = customtkinter.CTkSlider(self.testFrame,
-                                                        from_=0,
-                                                        to=5,
-                                                        width=width,
-                                                        command=lambda value: self.updateBlinkIntervalRightClick(value))
-
-        self.blinkIntervalRightSlider.grid(row=2,
-                                   column=1,
-                                   columnspan=col_count-1,
-                                   padx=10,
-                                   pady=0,
-                                   sticky="ew")
-
-        self.blinkIntervalRightLabel = customtkinter.CTkLabel(self.testFrame,
-                                                      text= f"{self.BLINK_INTERVAL_RIGHT_CLICK_LABEL} ({self.blinkIntervalRightClick})",
-                                                      fg_color="transparent")
-
-        self.blinkIntervalRightLabel.grid(row=2,
-                                  column=0,
-                                  padx=20,
-                                  pady=10,
-                                  sticky="ew")
 
 
         self.startWebcamBtn = customtkinter.CTkButton(self.testFrame,
@@ -349,9 +323,7 @@ class Frontend(customtkinter.CTk):
         self.voiceCommandsTextbox.configure(state="disabled")
 
         self.sensitivitySlider.set(self.sensitivity)
-        self.blinkIntervalLeftSlider.set(self.blinkIntervalLeftClick)
-        self.blinkIntervalRightSlider.set(self.blinkIntervalRightClick)
-
+        self.blinkIntervalSlider.set(self.blinkIntervalClick)
 
     def start_listening(self):
         # Starts voice recognition on new thread
@@ -431,8 +403,7 @@ class Frontend(customtkinter.CTk):
 
 def mainTest():
     app = Frontend(
-        blinkIntervalLeftClick=1,
-        blinkIntervalRightClick=2,
+        blinkIntervalClick=1,
         sensitivity=1,
         countdown=3
     )
@@ -448,8 +419,8 @@ def mainTest():
     print(config_dialogue.result)
     if config_dialogue.result:
         settings = config_dialogue.result
-        app.blinkIntervalLeftClick = settings["blinkIntervalLeftClick"]
-        app.blinkIntervalRightClick = settings["blinkIntervalRightClick"]
+        app.blinkIntervalClick = settings["blinkIntervalLeftClick"]
+        #app.blinkIntervalRightClick = settings["blinkIntervalRightClick"]
         app.sensitivity = settings["sensitivity"]
         app.countdown = settings["countdown"]
     else:
