@@ -10,7 +10,7 @@ import numpy as np
 from backend.Rotation2Vector import RotationVector, SensitivityParams, rot2MouseVector
 from backend.MouseAction import Mouse
 
-MODEL_PATH = "face_landmarker.task"
+MODEL_PATH = "backend/face_landmarker.task"
 # eye landmarks needed to calculate EAR
 
 
@@ -117,64 +117,67 @@ class HeadPoseEstimator:
                     .get_default_face_mesh_iris_connections_style())
 
         return annotated_image
+        
+    
+    def detect_stick_through_nose_bridge(image, face_landmarks):
+        h, w, _ = image.shape
 
-	def detect_stick_through_nose_bridge(image, face_landmarks):
-		h, w, _ = image.shape
+        # Landmark 168 for nose bridge (upper part)
+        nose_bridge_x = int(face_landmarks[168].x * w)
+        nose_bridge_y = int(face_landmarks[168].y * h)
 
-		# Landmark 168 for nose bridge (upper part)
-		nose_bridge_x = int(face_landmarks[168].x * w)
-		nose_bridge_y = int(face_landmarks[168].y * h)
+        # Define the region around landmark 168 (bounding box)
+        region_top_left = (nose_bridge_x - 50, nose_bridge_y - 50)
+        region_bottom_right = (nose_bridge_x + 50, nose_bridge_y + 50)
+        cv2.rectangle(image, region_top_left, region_bottom_right, (0, 255, 0), 2)
 
-		# Define the region around landmark 168 (bounding box)
-		region_top_left = (nose_bridge_x - 50, nose_bridge_y - 50)
-		region_bottom_right = (nose_bridge_x + 50, nose_bridge_y + 50)
-		cv2.rectangle(image, region_top_left, region_bottom_right, (0, 255, 0), 2)
+        # Crop the region of interest around the nose bridge
+        roi = image[region_top_left[1]:region_bottom_right[1], region_top_left[0]:region_bottom_right[0]]
 
-		# Crop the region of interest around the nose bridge
-		roi = image[region_top_left[1]:region_bottom_right[1], region_top_left[0]:region_bottom_right[0]]
+        # Convert to grayscale and apply edge detection (Canny)
+        gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        edges = cv2.Canny(gray_roi, 50, 150)
 
-		# Convert to grayscale and apply edge detection (Canny)
-		gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-		edges = cv2.Canny(gray_roi, 50, 150)
+        # Apply Hough Line Transform to detect lines
+        lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=50, maxLineGap=10)
 
-		# Apply Hough Line Transform to detect lines
-		lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=50, minLineLength=50, maxLineGap=10)
+        # Check if any vertical lines are detected
+        if lines is not None:
+            for line in lines:
+                x1, y1, x2, y2 = line[0]
+                # Calculate the angle of the line (vertical if angle is near 90 degrees)
+                if abs(x1 - x2) < 10:  # Vertical line
+                    cv2.line(roi, (x1, y1), (x2, y2), (0, 0, 255), 3)
+                    cv2.putText(image, "Stick detected", (nose_bridge_x - 50, nose_bridge_y - 50),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    return True  # Stick detected in the region
 
-		# Check if any vertical lines are detected
-		if lines is not None:
-			for line in lines:
-				x1, y1, x2, y2 = line[0]
-				# Calculate the angle of the line (vertical if angle is near 90 degrees)
-				if abs(x1 - x2) < 10:  # Vertical line
-					cv2.line(roi, (x1, y1), (x2, y2), (0, 0, 255), 3)
-					cv2.putText(image, "Stick detected", (nose_bridge_x - 50, nose_bridge_y - 50),
-								cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-					return True  # Stick detected in the region
+        return False  # No stick detected
 
-		return False  # No stick detected
 
 	# The main function for detecting glasses and stick detection
-	def __detect_glasses(self, srgb_image, detection_result):
-		face_landmarks_list = detection_result.face_landmarks
-		annotated_image = np.copy(srgb_image)
-		glasses_detected = False
+    def __detect_glasses(self, srgb_image, detection_result):
+        face_landmarks_list = detection_result.face_landmarks
+        annotated_image = np.copy(srgb_image)
+        glasses_detected = False
 
-		for face_landmarks in face_landmarks_list:
-			h, w, _ = annotated_image.shape  # Image dimensions
+        for face_landmarks in face_landmarks_list:
+            h, w, _ = annotated_image.shape  # Image dimensions
 
-			# Check for glasses based on eye and nose landmarks
-			for idx in list(LEFT_EYE_LANDMARKS.values()) + list(RIGHT_EYE_LANDMARKS.values()) + NOSE_LANDMARKS:
-				landmark = face_landmarks[idx]
-				if landmark.x < 0.25 or landmark.x > 0.8:  # Example condition, adjust based on tests
-					glasses_detected = True
-					break
+            # Check for glasses based on eye and nose landmarks
+            for idx in list(LEFT_EYE_LANDMARKS.values()) + list(RIGHT_EYE_LANDMARKS.values()) + NOSE_LANDMARKS:
+                landmark = face_landmarks[idx]
+                if landmark.x < 0.25 or landmark.x > 0.8:  # Example condition, adjust based on tests
+                    glasses_detected = True
+                    break
 
-			# Stick detection (through nose bridge, landmark 168)
-			if detect_stick_through_nose_bridge(annotated_image, face_landmarks.landmark) or glasses_detected:
-				glasses_detected = True
-                cv2.putText(annotated_image, "Glasses Detected", (30, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            # Stick detection (through nose bridge, landmark 168)
+            if self.detect_stick_through_nose_bridge(annotated_image, face_landmarks.landmark) or glasses_detected:
+                glasses_detected = True
+                cv2.putText(annotated_image, "Glasses Detected", (30, 100), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
-		return annotated_image, glasses_detected
+        return annotated_image, glasses_detected
 
     # Function to draw landmarks, lines, and EAR, detects blinks
     def __detect_blink(self, rgb_image, detection_result, draw_EAR, ear_threshold):
@@ -215,8 +218,9 @@ class HeadPoseEstimator:
             left_blink = left_ear < ear_threshold
             right_blink = right_ear < ear_threshold
 
-			if (left_blink or right_blink):
-                 blink = True
+            if (left_blink or right_blink):
+                blink = True
+
 
             if (left_blink and right_blink) and draw_EAR:
                 # Blink detection message
