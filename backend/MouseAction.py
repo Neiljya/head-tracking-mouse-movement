@@ -1,5 +1,5 @@
 import pyautogui
-from Rotation2Vector import Vector
+from backend.Rotation2Vector import Vector
 import time
 
 CLICK_LISTEN_INTERVAL = 0.2 # max interval between clicks to end listening (calibrate as needed)
