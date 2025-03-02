@@ -22,9 +22,9 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         # This is a scale factor dependent on the size of the screen
         # aka it varies from machine to machine probably but adjust
         # as you can until its centered ( or not )
-        scale_factor = 1.5
+        scale_factor = 1
 
-        #scaling = self.tk.call('tk', 'scaling')
+        scaling = self.tk.call('tk', 'scaling')
         height = 400
         width = 400
         screen_width = self.winfo_screenwidth()
