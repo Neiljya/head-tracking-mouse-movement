@@ -15,16 +15,16 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.title("Welcome to VisLink")
         self.transient(parent)
         self.grab_set()
-        
+
         # Center of window
         self.update_idletasks()
-        
+
         # This is a scale factor dependent on the size of the screen
         # aka it varies from machine to machine probably but adjust
         # as you can until its centered ( or not )
-        scale_factor = 1
+        scale_factor = 1.5
 
-        scaling = self.tk.call('tk', 'scaling')
+        #scaling = self.tk.call('tk', 'scaling')
         height = 400
         width = 400
         screen_width = self.winfo_screenwidth()
@@ -54,18 +54,18 @@ class WelcomeWindow(customtkinter.CTkToplevel):
 
         # Welcome content
         self.welcome_label = customtkinter.CTkLabel(
-            self, 
+            self,
             text = "Welcome to VisualLink",
             font = (font_path_regular, 24, "bold")
         )
-        
-        
+
+
         self.subtitle_label = customtkinter.CTkLabel(
-            self, 
+            self,
             text = "Eye-tracking setup loading...",
             font = ("Arial", 14)
         )
-        
+
 
         # === PROGRESS BAR =====
         self.progressbar = customtkinter.CTkProgressBar(self, width=300)
@@ -94,29 +94,29 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         def hex_to_rgb(hex_color):
             hex_color = hex_color.lstrip("#")
             return tuple(int(hex_color[i:i+2], 16) for i in (0,2,4))
-        
+
         def rgb_to_hex(rgb):
             return "#{:02x}{:02x}{:02x}".format(*rgb)
-        
+
         start_rgb = hex_to_rgb(start_hex)
         end_rgb = hex_to_rgb(end_hex)
 
         if current > steps:
             return
-        
+
         r = int(start_rgb[0] + (end_rgb[0] - start_rgb[0]) * (current / steps))
         g = int(start_rgb[1] + (end_rgb[1] - start_rgb[1]) * (current / steps))
         b = int(start_rgb[2] + (end_rgb[2] - start_rgb[2]) * (current / steps))
         new_color = rgb_to_hex((r, g, b))
         label.configure(text_color=new_color)
         self.after(delay, lambda: self.fade_in_label(label, start_hex, end_hex, steps, delay, current + 1))
-    
+
     def animate_progress(self):
         current = self.progressbar.get()
         if current < 1.0:
             self.progressbar.set(current + 0.01)
             self.after(50, self.animate_progress)
-        
+
     def show_progressBar(self):
         self.progressbar.pack(pady=10)
         self.animate_progress()
@@ -124,7 +124,7 @@ class WelcomeWindow(customtkinter.CTkToplevel):
     def show_welcome(self):
         self.welcome_label.pack(pady=10)
         self.fade_in_label(self.welcome_label, self.BACKGROUND_COLOR, self.TEXT_COLOR_WHITE)
-    
+
     def show_subtitle(self):
         self.subtitle_label.pack(pady=20)
         self.fade_in_label(self.subtitle_label, self.BACKGROUND_COLOR, self.TEXT_COLOR_WHITE)
