@@ -11,13 +11,13 @@ from backend.Rotation2Vector import RotationVector, SensitivityParams, rot2Mouse
 from backend.MouseAction import Mouse
 
 MODEL_PATH = "face_landmarker.task"
+# eye landmarks needed to calculate EAR
+
 
 # Define eye landmarks
 LEFT_EYE_LANDMARKS = {"top": 159, "bottom": 145, "outer": 133, "inner": 33}
 RIGHT_EYE_LANDMARKS = {"top": 386, "bottom": 374, "outer": 362, "inner": 263}
-NOSE_LANDMARKS = [168, 197, 2, 1, 0]
-EAR_THRESHOLD = 0.25  # Adjust based on testing
-EAR_THRESHOLD_GLASSES = 0.45
+
 NOSE_LANDMARKS = [1, 2, 168, 169]
 EAR_THRESHOLD = 0.2  # Adjust based on testing
 EAR_THRESHOLD_GLASSES = 0.4  #increase threshold to accommodate glasses
@@ -222,7 +222,6 @@ class HeadPoseEstimator:
                 # Blink detection message
                 cv2.putText(annotated_image, "BLINKED LEFT EYE", (30, 90),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-             	blink = True
 
         return annotated_image, blink
 
