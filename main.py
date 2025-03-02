@@ -14,13 +14,15 @@ import speech_recognition as sr
 customtkinter.set_default_color_theme("dark-blue")
 
 
-
 class Frontend(customtkinter.CTk):
 
     # VARIABLES
     HEADER_TEXT = "VisualLink"
     SENSITIVTY_LABEL = "Sensitivity"
-    BLINK_INTERVAL_LABEL = "Blink Interval"
+    BLINK_INTERVAL_LEFT_CLICK_LABEL = "Blink Interval Left Click"
+    BLINK_INTERVAL_RIGHT_CLICK_LABEL = "Blink Interval Right Click"
+    COUNTDOWN_LABEL = "Countdown"
+    
     VOICE_COMMANDS = [
         "start webcam - Starts the webcam feed",
         "increase sensitivity - Increases sensitivity by 1",
@@ -36,6 +38,7 @@ class Frontend(customtkinter.CTk):
         self.blinkIntervalLeftClick = blinkIntervalLeftClick
         self.blinkIntervalRightClick = blinkIntervalRightClick
         self.countdown = countdown
+
         
 
         import tkinter as tk
@@ -46,6 +49,7 @@ class Frontend(customtkinter.CTk):
         # tkinter setup
         # Window SETUP
         self.geometry("1000x500")
+        self.iconbitmap("./vislink_icon.ico")
         self.title(self.HEADER_TEXT)
 
         """
@@ -123,6 +127,10 @@ class Frontend(customtkinter.CTk):
         except Exception as e:
             print(e)
 
+
+    """
+    This is where all the camera stuff is
+    """
     def updateVideoFeed(self):
         ret, frame = self.cap.read()
         
@@ -158,13 +166,19 @@ class Frontend(customtkinter.CTk):
         self.sensitivity = newSensitivity
         self.sensitivityLabel.configure(text=f"{self.SENSITIVTY_LABEL} ({self.sensitivity:.1f})")
 
-        print(self.sensitivity)
+        #print(self.sensitivity)
 
-        
+    def updateBlinkIntervalLeftClick(self, newIntervalLeft):
+        self.blinkIntervalLeftClick = newIntervalLeft
+        self.blinkIntervalLeftLabel.configure(text=f"{self.BLINK_INTERVAL_LEFT_CLICK_LABEL} ({self.blinkIntervalLeftClick:.1f})")
+    
+    def updateBlinkIntervalRightClick(self, newIntervalRight):
+        self.blinkIntervalRightClick = newIntervalRight
+        self.blinkIntervalRightLabel.configure(text=f"{self.BLINK_INTERVAL_RIGHT_CLICK_LABEL} ({self.blinkIntervalRightClick:.1f})")
     
     # METHODS FOR INITIALIZING THE UI
     
-    def initSliders(self, width=200, row_count=3, col_count=5, row_weight=0, col_weight=0):
+    def initSliders(self, width=200, row_count=5, col_count=5, row_weight=0, col_weight=0):
 
         self.testFrame = Frame(master=self, 
                                row_count=row_count, 
@@ -207,36 +221,87 @@ class Frontend(customtkinter.CTk):
         
         # blink intervals
         
-        self.blinkIntervalSlider = customtkinter.CTkSlider(self.testFrame, 
+        self.blinkIntervalLeftSlider = customtkinter.CTkSlider(self.testFrame, 
                                                         from_=0, 
                                                         to=5,
-                                                        width=width)
+                                                        width=width,
+                                                        command=lambda value: self.updateBlinkIntervalLeftClick(value))
 
-        self.blinkIntervalSlider.grid(row=1, 
+        self.blinkIntervalLeftSlider.grid(row=1, 
                                    column=1, 
                                    columnspan=col_count-1, 
                                    padx=10, 
                                    pady=0, 
                                    sticky="ew")
         
-        self.blinkIntervalLabel = customtkinter.CTkLabel(self.testFrame, 
-                                                      text= f"{self.BLINK_INTERVAL_LABEL} ({self.blinkIntervalLeftClick})", 
+        self.blinkIntervalLeftLabel = customtkinter.CTkLabel(self.testFrame, 
+                                                      text= f"{self.BLINK_INTERVAL_LEFT_CLICK_LABEL} ({self.blinkIntervalLeftClick})", 
                                                       fg_color="transparent")
         
-        self.blinkIntervalLabel.grid(row=1, 
+        self.blinkIntervalLeftLabel.grid(row=1, 
                                   column=0, 
                                   padx=20, 
                                   pady=10, 
                                   sticky="ew")
+
+        # blink interval right
+        self.blinkIntervalRightSlider = customtkinter.CTkSlider(self.testFrame, 
+                                                        from_=0, 
+                                                        to=5,
+                                                        width=width,
+                                                        command=lambda value: self.updateBlinkIntervalRightClick(value))
+
+        self.blinkIntervalRightSlider.grid(row=2, 
+                                   column=1, 
+                                   columnspan=col_count-1, 
+                                   padx=10, 
+                                   pady=0, 
+                                   sticky="ew")
+        
+        self.blinkIntervalRightLabel = customtkinter.CTkLabel(self.testFrame, 
+                                                      text= f"{self.BLINK_INTERVAL_RIGHT_CLICK_LABEL} ({self.blinkIntervalRightClick})", 
+                                                      fg_color="transparent")
+        
+        self.blinkIntervalRightLabel.grid(row=2, 
+                                  column=0, 
+                                  padx=20, 
+                                  pady=10, 
+                                  sticky="ew")
+
         
         self.startWebcamBtn = customtkinter.CTkButton(self.testFrame,
                                                       text="Start Webcam",
-                                                      command=lambda: self.countDown(self.countdown))
-        self.startWebcamBtn.grid(row=5,
+                                                      command=lambda: self.countDown(self.countdown),
+                                                      height=100)
+        self.startWebcamBtn.grid(row=4,
                                  column=0,
+                                 columnspan=col_count,
+                                 rowspan=3,
                                  padx=20,
-                                 pady=10,
-                                 sticky='s')
+                                 pady=150,
+                                 sticky='nsew')
+
+        # countdown
+        self.countDownSlider = customtkinter.CTkSlider(self.testFrame,
+                                                       from_=0,
+                                                       to=30,
+                                                       width=width)
+        
+        self.countDownSlider.grid(row=3,
+                                  column=1,
+                                  columnspan=col_count-1,
+                                  padx=10,
+                                  pady=0,
+                                  sticky="ew")
+
+        self.countDownLabel = customtkinter.CTkLabel(self.testFrame,
+                                                     text=self.COUNTDOWN_LABEL)
+        
+        self.countDownLabel.grid(row=3,
+                                 column=0,
+                                 padx=10,
+                                 pady=0,
+                                 sticky="ew")
         
         # Voice commands section with better formatting
         self.voiceCommandsTextbox = customtkinter.CTkTextbox(self.testFrame, height=150, width=250, 
@@ -249,7 +314,8 @@ class Frontend(customtkinter.CTk):
         self.voiceCommandsTextbox.configure(state="disabled")
         
         self.sensitivitySlider.set(self.sensitivity)
-        self.blinkIntervalSlider.set(self.blinkIntervalLeftClick)
+        self.blinkIntervalLeftSlider.set(self.blinkIntervalLeftClick)
+        self.blinkIntervalRightSlider.set(self.blinkIntervalRightClick)
 
 
     def start_listening(self):
