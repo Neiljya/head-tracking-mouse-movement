@@ -9,8 +9,7 @@ import threading
 import speech_recognition as sr
 import pyautogui
 
-
-
+from backend.headPoseEstimator import HeadPoseEstimator as Tracker
 
 customtkinter.set_default_color_theme("dark-blue")
 
@@ -42,8 +41,6 @@ class Frontend(customtkinter.CTk):
         self.blinkIntervalRightClick = blinkIntervalRightClick
         self.countdown = countdown
         self.typing_mode = False
-
-        
 
         import tkinter as tk
 
@@ -123,6 +120,10 @@ class Frontend(customtkinter.CTk):
         else:
             self.updateVideoFeed()
 
+    def start_model_and_camera(self):
+        self.tracker = Tracker(self.sensitivity)
+        self.updateVideoFeed()
+
     def cleanup(self) -> None:
         try:
             self.cap.release()
@@ -144,6 +145,8 @@ class Frontend(customtkinter.CTk):
         # tkinter
         if ret:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            frame = self.tracker.process_img(frame) # add more params here
 
             imgtk = Image.fromarray(frame)
             imgtk = ImageTk.PhotoImage(image=imgtk)
