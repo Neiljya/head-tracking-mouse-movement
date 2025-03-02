@@ -1,5 +1,5 @@
 import pyautogui
-from backend.Rotation2Vector import Vector
+from Rotation2Vector import Vector
 import time
 
 CLICK_LISTEN_INTERVAL = 0.2 # max interval between clicks to end listening (calibrate as needed)
@@ -13,10 +13,10 @@ class Mouse:
 
         self.click_count = 0
         self.last_click_time = time.time()
- 
+
     def vector2pos(self, vector):
         return Vector((1 + vector.x) * (self.size[0] / 2), (1 - vector.y) * (self.size[1] / 2))
-    
+
     def moveCursor(self, new_vector):
         new_pos = self.vector2pos(new_vector)
         pyautogui.moveTo(new_pos.x, new_pos.y)

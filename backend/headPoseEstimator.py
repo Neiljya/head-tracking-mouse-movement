@@ -7,8 +7,8 @@ from mediapipe.tasks.python import vision
 import time
 import numpy as np
 
-from backend.Rotation2Vector import RotationVector, SensitivityParams, rot2MouseVector
-from backend.MouseAction import Mouse
+from Rotation2Vector import RotationVector, SensitivityParams, rot2MouseVector
+from MouseAction import Mouse
 
 MODEL_PATH = "backend/face_landmarker.task"
 # eye landmarks needed to calculate EAR
@@ -177,7 +177,7 @@ if __name__ == "__main__":
 
         if not success:
            break
-        
+
         img = tracker.process_img(img, verbose= True)
 
         cv2.imshow("test", img)
