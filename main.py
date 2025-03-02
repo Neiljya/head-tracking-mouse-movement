@@ -292,6 +292,21 @@ class Frontend(customtkinter.CTk):
                                  padx=20,
                                  pady=10,
                                  sticky='ew')
+                                 
+
+        # Simple Quit Button - added on the next row
+        self.quitBtn = customtkinter.CTkButton(self.testFrame,
+                                            text="Quit",
+                                            command=self.cleanup,
+                                            height=40,
+                                            corner_radius=10,
+                                            fg_color="#FF4444")  # Red color
+        self.quitBtn.grid(row=5,  # Just put it on the next row
+                        column=0,
+                        columnspan=col_count,
+                        padx=20,
+                        pady=10,
+                        sticky='ew')
 
         # countdown
         self.countDownSlider = customtkinter.CTkSlider(self.testFrame,
@@ -316,9 +331,17 @@ class Frontend(customtkinter.CTk):
                                  sticky="ew")
 
         # Voice commands section with better formatting
-        self.voiceCommandsTextbox = customtkinter.CTkTextbox(self.testFrame, height=200, width=250,
-                                                             font=("Arial", 12), wrap="word")
-        self.voiceCommandsTextbox.grid(row=5, column=0, columnspan=col_count, padx=20, pady=10, sticky="nsew")
+        self.voiceCommandsTextbox = customtkinter.CTkTextbox(self.testFrame, 
+                                                        height=200, 
+                                                        width=250,
+                                                        font=("Arial", 12), 
+                                                        wrap="word")
+        self.voiceCommandsTextbox.grid(row=6,  # Changed from row 5 to row 6
+                                    column=0, 
+                                    columnspan=col_count, 
+                                    padx=20, 
+                                    pady=10, 
+                                    sticky="nsew")
 
         # Format the voice commands with bullets
         formatted_commands = "Voice Commands:\n\n" + "\n".join([f"• {cmd}" for cmd in self.VOICE_COMMANDS])
