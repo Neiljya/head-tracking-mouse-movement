@@ -17,6 +17,7 @@ MODEL_PATH = "face_landmarker.task"
 # Define eye landmarks
 LEFT_EYE_LANDMARKS = {"top": 159, "bottom": 145, "outer": 133, "inner": 33}
 RIGHT_EYE_LANDMARKS = {"top": 386, "bottom": 374, "outer": 362, "inner": 263}
+EAR_THRESHOLD = 0.25
 NOSE_LANDMARKS = [1, 2, 168, 169]
 EAR_THRESHOLD = 0.2  # Adjust based on testing
 EAR_THRESHOLD_GLASSES = 0.4  #increase threshold to accommodate glasses
