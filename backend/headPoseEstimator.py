@@ -10,6 +10,9 @@ import numpy as np
 from backend.Rotation2Vector import RotationVector, SensitivityParams, rot2MouseVector
 from backend.MouseAction import Mouse
 
+MODEL_PATH = "face_landmarker.task"
+
+#eye landmarks needed to calculate EAR
 MODEL_PATH = "backend/face_landmarker.task"
 # eye landmarks needed to calculate EAR
 # Define eye landmarks
@@ -234,6 +237,36 @@ class HeadPoseEstimator:
         pitch, yaw, roll = cv2.RQDecomp3x3(rotation_matrix)[0]
         return roll, -pitch, yaw
 
+    def __detect_pupil(eye_image):
+        gray_eye = cv2.cvtColor(eye_image, cv2.COLOR_BGR2GRAY)
+        blurred = cv2.GaussianBlur(gray_eye, (5, 5), 0)
+        circles = cv2.HoughCircles(blurred, cv2.HOUGH_GRADIENT, dp=1.2, minDist=30,
+                                   param1=50, param2=30, minRadius=10, maxRadius=50)
+
+        if circles is not None:
+            circles = np.round(circles[0, :]).astype("int")
+            x, y, r = circles[0]
+            return (x, y, r)
+        return None
+
+    def __extract_eye_region(face_landmarks, eye_landmarks, image):
+        # Get bounding box coordinates for the eye region
+        eye_coords = [face_landmarks[i] for i in eye_landmarks]
+        x_coords = [coord[0] for coord in eye_coords]
+        y_coords = [coord[1] for coord in eye_coords]
+        x_min, x_max = min(x_coords), max(x_coords)
+        y_min, y_max = min(y_coords), max(y_coords)
+
+        # Crop the eye region
+        eye_image = image[y_min:y_max, x_min:x_max]
+        return eye_image
+
+    def map_to_screen(x, y, eye_image, screen_width, screen_height):
+        # Map coordinates from eye region to screen
+        screen_x = np.interp(x, [0, eye_image.shape[1]], [0, screen_width])
+        screen_y = np.interp(y, [0, eye_image.shape[0]], [0, screen_height])
+        return screen_x, screen_y
+
     # Function to compute EAR
     def __calculate_EAR(self, landmarks, eye):
         """Computes Eye Aspect Ratio (EAR)"""
@@ -278,6 +311,7 @@ if __name__ == "__main__":
 
         if not success:
            break
+
 
         img = tracker.process_img(img, verbose= True)
 
