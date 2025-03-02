@@ -18,11 +18,26 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         
         # Center of window
         self.update_idletasks()
-        width = self.winfo_screenwidth()
-        height = self.winfo_screenheight()
-        x = (width - 400) // 2
-        y = (height - 300) // 2
-        self.geometry(f"400+300+{x}+{y}")
+        
+        # This is a scale factor dependent on the size of the screen
+        # aka it varies from machine to machine probably but adjust
+        # as you can until its centered ( or not )
+        scale_factor = 1.5
+
+        #scaling = self.tk.call('tk', 'scaling')
+        height = 400
+        width = 400
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+
+        x = int(((screen_width/2) - (width/2)) * scale_factor)
+        y = int(((screen_height/2) - (height/1.5)) * scale_factor)
+
+        #x = int((screen_width - (width * scaling)) / 2)
+        #y = int((screen_height - (height * scaling)) / 2)
+
+
+        self.geometry(f"{width}x{height}+{x}+{y}")
 
         # Logo image
         logo_pil = Image.open("./vislink_logo.png")
