@@ -8,7 +8,14 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
+from Rotation2Vector import RotationVector, SensitivityParams, rot2MouseVector
+from MouseAction import Mouse
+
 MODEL_PATH = "face_landmarker.task"
+LEFT_EYE_LANDMARKS = [33, 160, 158, 133, 153, 144]
+RIGHT_EYE_LANDMARKS = [263, 387, 385, 362, 380, 373]
+MAX_EYE_LANDMARK = max(max(LEFT_EYE_LANDMARKS), max(RIGHT_EYE_LANDMARKS)) + 1
+EAR_THRESHOLD = 0.2  # Adjust based on testing
 
 # Helper functions
 #-------------------------------------------------------------------------------
@@ -50,22 +57,6 @@ def draw_landmarks_on_image(rgb_image, detection_result):
 
   return annotated_image
 
-def plot_face_blendshapes_bar_graph(face_blendshapes):
-  # Extract the face blendshapes category names and scores.
-  face_blendshapes_names = [face_blendshapes_category.category_name for face_blendshapes_category in face_blendshapes]
-  face_blendshapes_scores = [face_blendshapes_category.score for face_blendshapes_category in face_blendshapes]
-  # The blendshapes are ordered in decreasing score value.
-  face_blendshapes_ranks = range(len(face_blendshapes_names))
-
-  fig, ax = plt.subplots(figsize=(12, 12))
-  bar = ax.barh(face_blendshapes_ranks, face_blendshapes_scores, label=[str(x) for x in face_blendshapes_ranks])
-  ax.set_yticks(face_blendshapes_ranks, face_blendshapes_names)
-  ax.invert_yaxis()
-
-  # Label each bar with values
-  for score, patch in zip(face_blendshapes_scores, bar.patches):
-    plt.text(patch.get_x() + patch.get_width(), patch.get_y(), f"{score:.4f}", va="top")
-
 def get_euler_angles(detection_result):
     matrices = detection_result.facial_transformation_matrixes
     if (matrices == None or len(matrices) == 0):
@@ -76,8 +67,29 @@ def get_euler_angles(detection_result):
 
     # Decompose the rotation matrix into Euler angles (roll, pitch, yaw)
     pitch, yaw, roll = cv2.RQDecomp3x3(rotation_matrix)[0]
-    return roll, pitch, yaw
+    return roll, -pitch, yaw
 
+def calculate_EAR(landmarks, eye_indices):
+    """Compute the Eye Aspect Ratio (EAR) to detect blinking."""
+    left_eye = np.array([[landmarks[i].x, landmarks[i].y] for i in eye_indices])
+
+    # Vertical distances
+    v1 = np.linalg.norm(left_eye[1] - left_eye[5])
+    v2 = np.linalg.norm(left_eye[2] - left_eye[4])
+    
+    # Horizontal distance
+    h = np.linalg.norm(left_eye[0] - left_eye[3])
+    
+    ear = (v1 + v2) / (2.0 * h)
+    return ear
+
+def avg_EAR(detection_result):
+    landmarks = detection_result.face_landmarks
+    if (landmarks == None or len(landmarks) < MAX_EYE_LANDMARK):
+       return 10
+    left_EAR = calculate_EAR(landmarks, LEFT_EYE_LANDMARKS)
+    right_EAR = calculate_EAR(landmarks, RIGHT_EYE_LANDMARKS)
+    return np.average(left_EAR, right_EAR)
 
 if __name__ == "__main__":
     cap = cv2.VideoCapture(0)
@@ -92,27 +104,28 @@ if __name__ == "__main__":
     detector = vision.FaceLandmarker.create_from_options(options)
     print("Created Face landmarker")
 
-    rolls, pitches, yaws = [], [], []
+    sensitivity = SensitivityParams(1, .05) # set sensitivity and deadzone
+    mouse = Mouse()
 
     while cap.isOpened():
         success, img = cap.read()
 
         if not success:
            break
-        mp_image = mp.Image(image_format= mp.ImageFormat.SRGB, data=img)
+        mp_image = mp.Image(image_format= mp.ImageFormat.SRGB, data=cv2.flip(img, 1))
 
         start = time.time()
 
         detection_result = detector.detect(mp_image)
         roll, pitch, yaw = get_euler_angles(detection_result)
-        rolls.append(roll)
-        yaws.append(yaw)
-        pitches.append(pitch)
-        print(roll, pitch, yaw)
+        rotation = RotationVector(roll, pitch, yaw)
+        mouseVector = rot2MouseVector(rotation, sensitivity)
+        mouse.moveCursor(mouseVector)
+        # print(len(detection_result.face_landmarks))
         annotated_image = draw_landmarks_on_image(mp_image.numpy_view(), detection_result)
         cv2.imshow("test", annotated_image)
         if cv2.waitKey(1) == ord('q'):
             break
-
+        
     cap.release()
     cv2.destroyAllWindows()
