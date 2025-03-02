@@ -8,8 +8,7 @@ import time
 import threading
 import speech_recognition as sr
 import pyautogui
-
-
+from backend.MouseAction import Mouse
 from backend.headPoseEstimator import HeadPoseEstimator as Tracker
 
 customtkinter.set_default_color_theme("dark-blue")
@@ -47,6 +46,9 @@ class Frontend(customtkinter.CTk):
 
         if tk._default_root is None:
             tk._default_root = self
+
+        # Initialize Mouse
+        self.mouse = Mouse(smoothing_alpha=0.2)
 
         # tkinter setup
         # Window SETUP
@@ -111,6 +113,15 @@ class Frontend(customtkinter.CTk):
         self.microphone = sr.Microphone()
         self.listening = False
         self.start_listening()
+
+    def cleanup(self) -> None:
+        try:
+            self.listening = False
+            self.cap.release()
+            self.quit()
+            exit()
+        except Exception as e:
+            print(e)
 
     def countDown(self, countdown=3):
         if countdown is None:
@@ -367,10 +378,14 @@ class Frontend(customtkinter.CTk):
             self.after(0, lambda: self.updateSensitivity(new_sensitivity))
         elif "exit" in command or "quit" in command:
             self.after(0, self.cleanup)
-        elif "right click" in command:
-            pass
         elif "left click" in command:
-            pass
+            self.after(0, lambda: self.mouse.left_click())
+            print("Performed left click")
+            self.after(0, lambda: self.webcam_area.configure(text="Left Click Performed"))
+        elif "right click" in command:
+            self.after(0, lambda: self.mouse.right_click())
+            print("Performed right click")
+            self.after(0, lambda: self.webcam_area.configure(text="Right Click Performed"))
         elif "start typing" in command:
             if not self.typing_mode:
                 self.typing_mode = True
