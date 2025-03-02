@@ -124,16 +124,17 @@ class HeadPoseEstimator:
             # Compute and display EAR
             left_ear = self.__calculate_EAR(face_landmarks, LEFT_EYE_LANDMARKS)
             right_ear = self.__calculate_EAR(face_landmarks, RIGHT_EYE_LANDMARKS)
-            avg_ear = (left_ear + right_ear) / 2
+            #avg_ear = (left_ear + right_ear) / 2
 
             if draw_EAR:
                 # Display EAR on the screen
-                cv2.putText(annotated_image, f"EAR: {avg_ear:.2f}", (30, 50),
+                cv2.putText(annotated_image, f"EAR_LEFT: {left_ear:.2f}, EAR_RIGHT: {right_ear:.2f}", (30, 50),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
-            blink = avg_ear < EAR_THRESHOLD
+            left_blink = left_ear < EAR_THRESHOLD
+            right_blink = right_ear < EAR_THRESHOLD
 
-            if blink and draw_EAR:
+            if (left_blink or right_blink) and draw_EAR:
                 # Blink detection message
                 cv2.putText(annotated_image, "BLINK DETECTED", (30, 90),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
