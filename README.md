@@ -18,14 +18,14 @@ To start VisLink, run this command in the project directory:
 ```
 python main.py
 ```
-After a few seconds, a window like the following should appear.
-![first window](/readmeAssets/screen1.png)
-Once the tool loads, a window like the following will appear
-![second window](/readmeAssets/screen2.png)
-In this window, you can change some of the tool's properties. 
-Sensitivity: The amount to scale mouse movement so you can move your head either less or more
-Blink interval: The max amount of time between blinks to be counted as double or triple blinks
-Countdown: Number of seconds to start the tool from pressing start
+After a few seconds, a window like the following should appear:\
+![first window](/readmeAssets/screen1.png)\
+Once the tool loads, a window like the following will appear\
+![second window](/readmeAssets/screen2.png)\
+In this window, you can change some of the tool's properties.\
+Sensitivity: The amount to scale mouse movement so you can move your head either less or more\
+Blink interval: The max amount of time between blinks to be counted as double or triple blinks\
+Countdown: Number of seconds to start the tool from pressing start\
 
-Once you have configured your settings, press start to take you to the tool's launch window:
-![third_window](/readmeAssets/screen2.png)
+Once you have configured your settings, press start to take you to the tool's launch window:\
+![third_window](/readmeAssets/screen3.png)\
