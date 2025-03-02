@@ -111,6 +111,15 @@ class Frontend(customtkinter.CTk):
         self.listening = False
         self.start_listening()
 
+    def cleanup(self) -> None:
+        try:
+            self.listening = False
+            self.cap.release()
+            self.quit()
+            exit()
+        except Exception as e:
+            print(e)
+
     def countDown(self, countdown=3):
         if countdown is None:
             countdown = self.countdown
