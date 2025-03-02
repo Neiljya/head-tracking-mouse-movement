@@ -17,9 +17,9 @@ MODEL_PATH = "face_landmarker.task"
 # Define eye landmarks
 LEFT_EYE_LANDMARKS = {"top": 159, "bottom": 145, "outer": 133, "inner": 33}
 RIGHT_EYE_LANDMARKS = {"top": 386, "bottom": 374, "outer": 362, "inner": 263}
-
 NOSE_LANDMARKS = [1, 2, 168, 169]
 EAR_THRESHOLD = 0.2  # Adjust based on testing
+EAR_THRESHOLD_GLASSES = 0.4  #increase threshold to accommodate glasses
 EAR_THRESHOLD_GLASSES = 0.4  #increase threshold to accommodate glasses
 
 DEFAULT_SENSITIVITY = 1
@@ -46,6 +46,13 @@ class HeadPoseEstimator:
         display_img = mp_image.numpy_view()
         if drawMask:
             display_img = self.__draw_landmarks_on_image(display_img, detection_result)
+        display_img, glasses_detected = self.__detect_glasses(display_img, detection_result)
+        if glasses_detected:
+            #increase threshold to accommodate glasses
+            ear_threshold = EAR_THRESHOLD_GLASSES
+        else:
+            ear_threshold = EAR_THRESHOLD
+        display_img, blinked = self.__detect_blink(display_img, detection_result, blinkAnnot, ear_threshold)
         display_img, glasses_detected = self.__detect_glasses(display_img, detection_result)
         if glasses_detected:
             #increase threshold to accommodate glasses
@@ -169,7 +176,6 @@ class HeadPoseEstimator:
 		return annotated_image, glasses_detected
 
     # Function to draw landmarks, lines, and EAR, detects blinks
-    def __detect_blink(self, rgb_image, detection_result, draw_EAR, ear_threshold):
     def __detect_blink(self, rgb_image, detection_result, draw_EAR, ear_threshold):
         face_landmarks_list = detection_result.face_landmarks
         annotated_image = np.copy(rgb_image)
