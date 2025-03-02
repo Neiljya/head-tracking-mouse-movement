@@ -1,6 +1,7 @@
 import customtkinter
 from frame import Frame
 
+FRAME_COLOR = "#1F1F1F"
 class ConfigDialogue(customtkinter.CTkToplevel):
     def __init__(self, parent):
         super().__init__(parent)
@@ -17,7 +18,7 @@ class ConfigDialogue(customtkinter.CTkToplevel):
         self.countdown = customtkinter.IntVar(value=3)
 
         # Main Frame for Content
-        self.main_frame = customtkinter.CTkFrame(self, corner_radius=15, fg_color="gray20")
+        self.main_frame = customtkinter.CTkFrame(self, corner_radius=15, fg_color=FRAME_COLOR)
         self.main_frame.pack(padx=20, pady=20, fill="both", expand=True)
 
         # Title
