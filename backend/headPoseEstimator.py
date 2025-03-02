@@ -134,13 +134,17 @@ class HeadPoseEstimator:
             left_blink = left_ear < EAR_THRESHOLD
             right_blink = right_ear < EAR_THRESHOLD
 
-            if (left_blink or right_blink) and draw_EAR:
+            if (left_blink) and draw_EAR:
                 # Blink detection message
-                cv2.putText(annotated_image, "BLINK DETECTED", (30, 90),
+                cv2.putText(annotated_image, "LEFT EYE BLINKED", (30, 90),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+				blink = True
+			if (right_blink) and draw_EAR:
+                # Blink detection message
+                cv2.putText(annotated_image, "RIGHT EYE BLINKED", (annotated_image.shape[1] - 300, 90),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+             	blink = True
 
-                blink = True
-                
         return annotated_image, blink
 
     def __get_euler_angles(self, detection_result):
