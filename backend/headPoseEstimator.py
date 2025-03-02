@@ -19,6 +19,9 @@ RIGHT_EYE_LANDMARKS = {"top": 386, "bottom": 374, "outer": 362, "inner": 263}
 NOSE_LANDMARKS = [168, 197, 2, 1, 0]
 EAR_THRESHOLD = 0.25  # Adjust based on testing
 EAR_THRESHOLD_GLASSES = 0.45
+NOSE_LANDMARKS = [1, 2, 168, 169]
+EAR_THRESHOLD = 0.2  # Adjust based on testing
+EAR_THRESHOLD_GLASSES = 0.4  #increase threshold to accommodate glasses
 
 DEFAULT_SENSITIVITY = 1
 DEFAULT_DEADZONE = 0.05
@@ -46,11 +49,11 @@ class HeadPoseEstimator:
             display_img = self.__draw_landmarks_on_image(display_img, detection_result)
         display_img, glasses_detected = self.__detect_glasses(display_img, detection_result)
         if glasses_detected:
-             ear_threshold = EAR_THRESHOLD_GLASSES
+            #increase threshold to accommodate glasses
+            ear_threshold = EAR_THRESHOLD_GLASSES
         else:
-             ear_threshold = EAR_THRESHOLD
+            ear_threshold = EAR_THRESHOLD
         display_img, blinked = self.__detect_blink(display_img, detection_result, blinkAnnot, ear_threshold)
-
         if blinked:
             self.mouse.registerClick()
         self.mouse.checkClick(verbose)
@@ -205,8 +208,6 @@ class HeadPoseEstimator:
 
             left_blink = left_ear < ear_threshold
             right_blink = right_ear < ear_threshold
-            left_blink = left_ear < ear_threshold
-            right_blink = right_ear < ear_threshold
 
 			if (left_blink or right_blink):
                  blink = True
@@ -222,6 +223,7 @@ class HeadPoseEstimator:
                 # Blink detection message
                 cv2.putText(annotated_image, "BLINKED LEFT EYE", (30, 90),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+             	blink = True
 
         return annotated_image, blink
 
