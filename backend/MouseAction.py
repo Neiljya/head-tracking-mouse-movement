@@ -43,11 +43,11 @@ class Mouse:
 
     # needs to be called in loop
     def checkClick(self, verbose= False):
-        if self.click_count > 0 and (time.time() - self.last_click_time) > CLICK_LISTEN_INTERVAL:
-            if self.click_count == 1:
+        if self.click_count > 1 and (time.time() - self.last_click_time) > CLICK_LISTEN_INTERVAL:
+            if self.click_count == 2:
                 pyautogui.leftClick()
                 if verbose: print("left click")
-            elif self.click_count == 2:
+            elif self.click_count == 3:
                 pyautogui.rightClick()
                 if verbose: print("right click")
             else:
