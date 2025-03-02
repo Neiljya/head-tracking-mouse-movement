@@ -6,19 +6,33 @@ CLICK_LISTEN_INTERVAL = 0.2 # max interval between clicks to end listening (cali
 
 # One blink for left click, two blinks for right click, three blinks for double click
 class Mouse:
-    def __init__(self):
+    def __init__(self, smoothing_alpha=0.2):
         self.size = pyautogui.size()
         self.position = Vector(0, 0)
         pyautogui.FAILSAFE = False
 
         self.click_count = 0
         self.last_click_time = time.time()
- 
+
+        self.smoothing_alpha = smoothing_alpha
+
+        self.smoothed_vector = Vector(0,0)
+
     def vector2pos(self, vector):
         return Vector((1 + vector.x) * (self.size[0] / 2), (1 - vector.y) * (self.size[1] / 2))
-    
+
     def moveCursor(self, new_vector):
-        new_pos = self.vector2pos(new_vector)
+        # apply exponential smoothing to the new_vector
+        self.smoothed_vector.x = (
+            self.smoothing_alpha * new_vector.x +
+            (1 - self.smoothing_alpha) * self.smoothed_vector.x
+        )
+
+        self.smoothed_vector.y = (
+            self.smoothing_alpha * new_vector.y +
+            (1 - self.smoothing_alpha) * self.smoothed_vector.y
+        )
+        new_pos = self.vector2pos(self.smoothed_vector)
         pyautogui.moveTo(new_pos.x, new_pos.y)
 
     # needs to be called in loop
