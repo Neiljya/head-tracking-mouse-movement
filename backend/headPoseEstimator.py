@@ -7,8 +7,8 @@ from mediapipe.tasks.python import vision
 import time
 import numpy as np
 
-from Rotation2Vector import RotationVector, SensitivityParams, rot2MouseVector
-from MouseAction import Mouse
+from backend.Rotation2Vector import RotationVector, SensitivityParams, rot2MouseVector
+from backend.MouseAction import Mouse
 
 MODEL_PATH = "face_landmarker.task"
 # eye landmarks needed to calculate EAR
