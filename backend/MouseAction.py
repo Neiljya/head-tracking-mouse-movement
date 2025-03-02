@@ -2,12 +2,11 @@ import pyautogui
 from backend.Rotation2Vector import Vector
 import time
 
-CLICK_LISTEN_INTERVAL = 0.2 # max interval between clicks to end listening (calibrate as needed)
 CLICK_PAUSE_TIME = 0.1
 
 # One blink for left click, two blinks for right click, three blinks for double click
 class Mouse:
-    def __init__(self, smoothing_alpha=0.2):
+    def __init__(self, click_interval=0.2, smoothing_alpha=0.2):
         self.size = pyautogui.size()
         self.position = Vector(0, 0)
         pyautogui.FAILSAFE = False
@@ -19,6 +18,11 @@ class Mouse:
 
         self.smoothed_vector = Vector(0,0)
         self.last_action_time = time.time()
+
+        self.click_interval = click_interval
+
+    def setClickInterval(self, newInterval):
+        self.click_interval = newInterval
 
     def vector2pos(self, vector):
         return Vector((1 + vector.x) * (self.size[0] / 2), (1 - vector.y) * (self.size[1] / 2))
@@ -43,7 +47,7 @@ class Mouse:
 
     # needs to be called in loop
     def checkClick(self, verbose= False):
-        if self.click_count > 1 and (time.time() - self.last_click_time) > CLICK_LISTEN_INTERVAL:
+        if self.click_count > 1 and (time.time() - self.last_click_time) > self.click_interval:
             if self.click_count == 2:
                 pyautogui.leftClick()
                 if verbose: print("left click")
