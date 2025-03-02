@@ -178,7 +178,7 @@ class Frontend(customtkinter.CTk):
     
     # METHODS FOR INITIALIZING THE UI
     
-    def initSliders(self, width=200, row_count=5, col_count=5, row_weight=0, col_weight=0):
+    def initSliders(self, width=200, row_count=7, col_count=5, row_weight=0, col_weight=0):
 
         self.testFrame = Frame(master=self, 
                                row_count=row_count, 
@@ -272,14 +272,14 @@ class Frontend(customtkinter.CTk):
         self.startWebcamBtn = customtkinter.CTkButton(self.testFrame,
                                                       text="Start Webcam",
                                                       command=lambda: self.countDown(self.countdown),
-                                                      height=100)
+                                                      height=40, corner_radius = 10)
+
         self.startWebcamBtn.grid(row=4,
                                  column=0,
                                  columnspan=col_count,
-                                 rowspan=3,
                                  padx=20,
-                                 pady=150,
-                                 sticky='nsew')
+                                 pady=10,
+                                 sticky='ew')
 
         # countdown
         self.countDownSlider = customtkinter.CTkSlider(self.testFrame,
@@ -306,7 +306,7 @@ class Frontend(customtkinter.CTk):
         # Voice commands section with better formatting
         self.voiceCommandsTextbox = customtkinter.CTkTextbox(self.testFrame, height=150, width=250, 
                                                              font=("Arial", 12), wrap="word")
-        self.voiceCommandsTextbox.grid(row=3, column=0, columnspan=col_count, padx=20, pady=10, sticky="nsew")
+        self.voiceCommandsTextbox.grid(row=5, column=0, columnspan=col_count, padx=20, pady=10, sticky="nsew")
         
         # Format the voice commands with bullets
         formatted_commands = "Voice Commands:\n\n" + "\n".join([f"• {cmd}" for cmd in self.VOICE_COMMANDS])
