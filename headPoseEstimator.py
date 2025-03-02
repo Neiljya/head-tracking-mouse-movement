@@ -14,11 +14,42 @@ from MouseAction import Mouse
 MODEL_PATH = "face_landmarker.task"
 LEFT_EYE_LANDMARKS = [33, 160, 158, 133, 153, 144]
 RIGHT_EYE_LANDMARKS = [263, 387, 385, 362, 380, 373]
-MAX_EYE_LANDMARK = max(max(LEFT_EYE_LANDMARKS), max(RIGHT_EYE_LANDMARKS)) + 1
-EAR_THRESHOLD = 0.2  # Adjust based on testing
+
+#eye landmarks needed to calculate EAR
+# Define eye landmarks
+LEFT_EYE_LANDMARKS = {"top": 159, "bottom": 145, "outer": 133, "inner": 33}
+RIGHT_EYE_LANDMARKS = {"top": 386, "bottom": 374, "outer": 362, "inner": 263}
+#MAX_EYE_LANDMARK = max(max(LEFT_EYE_LANDMARKS), max(RIGHT_EYE_LANDMARKS)) + 1
+EAR_THRESHOLD = 0.25  # Adjust based on testing
 
 # Helper functions
 #-------------------------------------------------------------------------------
+
+
+import cv2
+import numpy as np
+from mediapipe.framework.formats import landmark_pb2
+from mediapipe import solutions
+
+# Define eye landmarks
+LEFT_EYE_LANDMARKS = {"top": 159, "bottom": 145, "outer": 133, "inner": 33}
+RIGHT_EYE_LANDMARKS = {"top": 386, "bottom": 374, "outer": 362, "inner": 263}
+EAR_THRESHOLD = 0.2  # Blink detection threshold
+
+# Function to compute EAR
+def calculate_EAR(landmarks, eye):
+    """Computes Eye Aspect Ratio (EAR)"""
+    top = np.array([landmarks[eye["top"]].x, landmarks[eye["top"]].y])
+    bottom = np.array([landmarks[eye["bottom"]].x, landmarks[eye["bottom"]].y])
+    outer = np.array([landmarks[eye["outer"]].x, landmarks[eye["outer"]].y])
+    inner = np.array([landmarks[eye["inner"]].x, landmarks[eye["inner"]].y])
+
+    vertical_dist = np.linalg.norm(top - bottom)
+    horizontal_dist = np.linalg.norm(outer - inner)
+
+    ear = vertical_dist / horizontal_dist
+    return ear
+
 def draw_landmarks_on_image(rgb_image, detection_result):
   face_landmarks_list = detection_result.face_landmarks
   annotated_image = np.copy(rgb_image)
@@ -57,6 +88,49 @@ def draw_landmarks_on_image(rgb_image, detection_result):
 
   return annotated_image
 
+# Function to draw landmarks, lines, and EAR
+def display_EAR(rgb_image, detection_result):
+    face_landmarks_list = detection_result.face_landmarks
+    annotated_image = np.copy(rgb_image)
+
+    for face_landmarks in face_landmarks_list:
+        h, w, _ = annotated_image.shape  # Image dimensions
+
+        for eye in [LEFT_EYE_LANDMARKS, RIGHT_EYE_LANDMARKS]:
+            # Get landmark coordinates
+            top = (int(face_landmarks[eye["top"]].x * w), int(face_landmarks[eye["top"]].y * h))
+            bottom = (int(face_landmarks[eye["bottom"]].x * w), int(face_landmarks[eye["bottom"]].y * h))
+            outer = (int(face_landmarks[eye["outer"]].x * w), int(face_landmarks[eye["outer"]].y * h))
+            inner = (int(face_landmarks[eye["inner"]].x * w), int(face_landmarks[eye["inner"]].y * h))
+
+            # Draw vertical line (green) - between top and bottom eyelid
+            cv2.line(annotated_image, top, bottom, (0, 255, 0), 2)
+
+            # Draw horizontal line (blue) - between inner and outer eye corners
+            cv2.line(annotated_image, inner, outer, (255, 0, 0), 2)
+
+            # Draw eye landmarks as yellow dots
+            for point in [top, bottom, outer, inner]:
+                cv2.circle(annotated_image, point, 4, (0, 255, 255), -1)
+
+        # Compute and display EAR
+        left_ear = calculate_EAR(face_landmarks, LEFT_EYE_LANDMARKS)
+        right_ear = calculate_EAR(face_landmarks, RIGHT_EYE_LANDMARKS)
+        avg_ear = (left_ear + right_ear) / 2
+
+        # Display EAR on the screen
+        cv2.putText(annotated_image, f"EAR: {avg_ear:.2f}", (30, 50),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+
+        # Blink detection message
+        if avg_ear < EAR_THRESHOLD:
+            cv2.putText(annotated_image, "BLINK DETECTED", (30, 90),
+                        cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+
+    return annotated_image
+
+
+
 def get_euler_angles(detection_result):
     matrices = detection_result.facial_transformation_matrixes
     if (matrices == None or len(matrices) == 0):
@@ -69,27 +143,19 @@ def get_euler_angles(detection_result):
     pitch, yaw, roll = cv2.RQDecomp3x3(rotation_matrix)[0]
     return roll, -pitch, yaw
 
-def calculate_EAR(landmarks, eye_indices):
-    """Compute the Eye Aspect Ratio (EAR) to detect blinking."""
-    left_eye = np.array([[landmarks[i].x, landmarks[i].y] for i in eye_indices])
+# Function to compute EAR
+def calculate_EAR(landmarks, eye):
+    """Computes Eye Aspect Ratio (EAR)"""
+    top = np.array([landmarks[eye["top"]].x, landmarks[eye["top"]].y])
+    bottom = np.array([landmarks[eye["bottom"]].x, landmarks[eye["bottom"]].y])
+    outer = np.array([landmarks[eye["outer"]].x, landmarks[eye["outer"]].y])
+    inner = np.array([landmarks[eye["inner"]].x, landmarks[eye["inner"]].y])
 
-    # Vertical distances
-    v1 = np.linalg.norm(left_eye[1] - left_eye[5])
-    v2 = np.linalg.norm(left_eye[2] - left_eye[4])
-    
-    # Horizontal distance
-    h = np.linalg.norm(left_eye[0] - left_eye[3])
-    
-    ear = (v1 + v2) / (2.0 * h)
+    vertical_dist = np.linalg.norm(top - bottom)
+    horizontal_dist = np.linalg.norm(outer - inner)
+
+    ear = vertical_dist / horizontal_dist
     return ear
-
-def avg_EAR(detection_result):
-    landmarks = detection_result.face_landmarks
-    if (landmarks == None or len(landmarks) < MAX_EYE_LANDMARK):
-       return 10
-    left_EAR = calculate_EAR(landmarks, LEFT_EYE_LANDMARKS)
-    right_EAR = calculate_EAR(landmarks, RIGHT_EYE_LANDMARKS)
-    return np.average(left_EAR, right_EAR)
 
 if __name__ == "__main__":
     cap = cv2.VideoCapture(0)
@@ -117,15 +183,18 @@ if __name__ == "__main__":
         start = time.time()
 
         detection_result = detector.detect(mp_image)
+        print(detection_result)
         roll, pitch, yaw = get_euler_angles(detection_result)
         rotation = RotationVector(roll, pitch, yaw)
         mouseVector = rot2MouseVector(rotation, sensitivity)
         mouse.moveCursor(mouseVector)
         # print(len(detection_result.face_landmarks))
         annotated_image = draw_landmarks_on_image(mp_image.numpy_view(), detection_result)
-        cv2.imshow("test", annotated_image)
+        image_with_ear = display_EAR(annotated_image, detection_result)
+
+        cv2.imshow("test", image_with_ear)
         if cv2.waitKey(1) == ord('q'):
             break
-        
+
     cap.release()
     cv2.destroyAllWindows()
