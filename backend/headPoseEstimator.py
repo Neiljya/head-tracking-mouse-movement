@@ -19,12 +19,16 @@ EAR_THRESHOLD = 0.2  # Adjust based on testing
 
 DEFAULT_SENSITIVITY = 1
 DEFAULT_DEADZONE = 0.05
+DEFAULT_CLICK_INTERVAL = 0.2
 
 class HeadPoseEstimator:
-    def __init__(self, sensitivity= DEFAULT_SENSITIVITY, deadzone = DEFAULT_DEADZONE):
-        self.mouse = Mouse()
+    def __init__(self, sensitivity= DEFAULT_SENSITIVITY, deadzone = DEFAULT_DEADZONE, blinkInterval = DEFAULT_CLICK_INTERVAL):
+        self.mouse = Mouse(click_interval= blinkInterval)
         self.sensitivity = SensitivityParams(sensitivity, deadzone) # set sensitivity and deadzone
         self.__init_model()
+
+    def set_blink_interval(self, newInterval):
+        self.mouse.setClickInterval(newInterval)
 
     def process_img(self, img, moveMouse= True, drawMask= True, blinkAnnot= True, displayAngle= True, verbose= False):
         mp_image = mp.Image(image_format= mp.ImageFormat.SRGB, data=cv2.flip(img, 1))
@@ -134,13 +138,17 @@ class HeadPoseEstimator:
             left_blink = left_ear < EAR_THRESHOLD
             right_blink = right_ear < EAR_THRESHOLD
 
-            if (left_blink or right_blink) and draw_EAR:
+            if (left_blink) and draw_EAR:
                 # Blink detection message
-                cv2.putText(annotated_image, "BLINK DETECTED", (30, 90),
+                cv2.putText(annotated_image, "LEFT EYE BLINKED", (30, 90),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-
                 blink = True
-                
+            if (right_blink) and draw_EAR:
+                # Blink detection message
+                cv2.putText(annotated_image, "RIGHT EYE BLINKED", (annotated_image.shape[1] - 300, 90),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+                blink = True
+
         return annotated_image, blink
 
     def __get_euler_angles(self, detection_result):
