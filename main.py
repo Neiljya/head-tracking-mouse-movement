@@ -132,10 +132,8 @@ class Frontend(customtkinter.CTk):
             self.start_model_and_camera()
 
     def start_model_and_camera(self):
-        self.tracker = Tracker(self.sensitivity)
+        self.tracker = Tracker(self.sensitivity, blinkInterval=self.blinkIntervalClick)
         self.updateVideoFeed()
-
-
 
     """
     This is where all the camera stuff is
@@ -397,12 +395,9 @@ class Frontend(customtkinter.CTk):
 
 
 
-
-
-
 def mainTest():
     app = Frontend(
-        blinkIntervalClick=1,
+        blinkIntervalClick=.2,
         sensitivity=1,
         countdown=3
     )
