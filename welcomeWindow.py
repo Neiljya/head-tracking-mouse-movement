@@ -24,7 +24,7 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         # as you can until its centered ( or not )
         scale_factor = 1.5
 
-        #scaling = self.tk.call('tk', 'scaling')
+        scaling = self.tk.call('tk', 'scaling')
         height = 400
         width = 400
         screen_width = self.winfo_screenwidth()
