@@ -3,6 +3,7 @@ from backend.Rotation2Vector import Vector
 import time
 
 CLICK_LISTEN_INTERVAL = 0.2 # max interval between clicks to end listening (calibrate as needed)
+CLICK_PAUSE_TIME = 0.1
 
 # One blink for left click, two blinks for right click, three blinks for double click
 class Mouse:
@@ -17,12 +18,17 @@ class Mouse:
         self.smoothing_alpha = smoothing_alpha
 
         self.smoothed_vector = Vector(0,0)
+        self.last_action_time = time.time()
 
     def vector2pos(self, vector):
         return Vector((1 + vector.x) * (self.size[0] / 2), (1 - vector.y) * (self.size[1] / 2))
 
     def moveCursor(self, new_vector):
         # apply exponential smoothing to the new_vector
+
+        if time.time() - self.last_action_time < CLICK_PAUSE_TIME:
+            return
+        
         self.smoothed_vector.x = (
             self.smoothing_alpha * new_vector.x +
             (1 - self.smoothing_alpha) * self.smoothed_vector.x
@@ -48,6 +54,7 @@ class Mouse:
                 pyautogui.doubleClick()
                 if verbose: print("double click")
             self.click_count = 0
+            self.last_action_time = time.time()
 
     def registerClick(self):
         self.click_count += 1

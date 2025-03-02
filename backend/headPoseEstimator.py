@@ -139,6 +139,8 @@ class HeadPoseEstimator:
                 cv2.putText(annotated_image, "BLINK DETECTED", (30, 90),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
+                blink = True
+                
         return annotated_image, blink
 
     def __get_euler_angles(self, detection_result):
