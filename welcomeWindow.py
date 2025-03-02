@@ -1,8 +1,13 @@
 
 import customtkinter
+from font_configs import font_path_regular
 from PIL import Image
 
 class WelcomeWindow(customtkinter.CTkToplevel):
+
+    BACKGROUND_COLOR = "#2b2b2b"
+    TEXT_COLOR_WHITE = "#ffffff"
+
     def __init__(self, parent):
         super().__init__(parent)
         self.attributes("-alpha", 0.0)
@@ -36,7 +41,7 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         self.welcome_label = customtkinter.CTkLabel(
             self, 
             text = "Welcome to VisualLink",
-            font = ("Arial", 24, "bold")
+            font = (font_path_regular, 24, "bold")
         )
         
         
@@ -66,6 +71,31 @@ class WelcomeWindow(customtkinter.CTkToplevel):
         # Auto-close after 12 seconds
         self.after(1000*12, self.close_welcome)
 
+    """
+    Fade in label - helper method to help fade in text (by transitioning the color)
+    """
+    def fade_in_label(self, label, start_hex, end_hex, steps=20, delay=50, current=0):
+
+        def hex_to_rgb(hex_color):
+            hex_color = hex_color.lstrip("#")
+            return tuple(int(hex_color[i:i+2], 16) for i in (0,2,4))
+        
+        def rgb_to_hex(rgb):
+            return "#{:02x}{:02x}{:02x}".format(*rgb)
+        
+        start_rgb = hex_to_rgb(start_hex)
+        end_rgb = hex_to_rgb(end_hex)
+
+        if current > steps:
+            return
+        
+        r = int(start_rgb[0] + (end_rgb[0] - start_rgb[0]) * (current / steps))
+        g = int(start_rgb[1] + (end_rgb[1] - start_rgb[1]) * (current / steps))
+        b = int(start_rgb[2] + (end_rgb[2] - start_rgb[2]) * (current / steps))
+        new_color = rgb_to_hex((r, g, b))
+        label.configure(text_color=new_color)
+        self.after(delay, lambda: self.fade_in_label(label, start_hex, end_hex, steps, delay, current + 1))
+    
     def animate_progress(self):
         current = self.progressbar.get()
         if current < 1.0:
@@ -78,9 +108,11 @@ class WelcomeWindow(customtkinter.CTkToplevel):
 
     def show_welcome(self):
         self.welcome_label.pack(pady=10)
+        self.fade_in_label(self.welcome_label, self.BACKGROUND_COLOR, self.TEXT_COLOR_WHITE)
     
     def show_subtitle(self):
         self.subtitle_label.pack(pady=20)
+        self.fade_in_label(self.subtitle_label, self.BACKGROUND_COLOR, self.TEXT_COLOR_WHITE)
 
     def fade_in(self):
         alpha = self.attributes("-alpha")
