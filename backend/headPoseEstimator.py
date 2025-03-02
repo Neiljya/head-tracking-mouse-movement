@@ -53,6 +53,7 @@ class HeadPoseEstimator:
         if blinked:
             self.mouse.registerClick()
         self.mouse.checkClick(verbose)
+
         return display_img
 
     def set_sensitivity_params(self, sensitivity, deadzone):
@@ -166,6 +167,7 @@ class HeadPoseEstimator:
 
     # Function to draw landmarks, lines, and EAR, detects blinks
     def __detect_blink(self, rgb_image, detection_result, draw_EAR, ear_threshold):
+    def __detect_blink(self, rgb_image, detection_result, draw_EAR, ear_threshold):
         face_landmarks_list = detection_result.face_landmarks
         annotated_image = np.copy(rgb_image)
         blink = False
@@ -202,15 +204,19 @@ class HeadPoseEstimator:
 
             left_blink = left_ear < ear_threshold
             right_blink = right_ear < ear_threshold
+            left_blink = left_ear < ear_threshold
+            right_blink = right_ear < ear_threshold
 
-            if (left_blink) and draw_EAR:
+            if (left_blink and right_blink) and draw_EAR:
                 # Blink detection message
-                cv2.putText(annotated_image, "LEFT EYE BLINKED", (30, 90),
+                cv2.putText(annotated_image, "BLINKED BOTH EYES", (30, 90),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
-                blink = True
-            if (right_blink) and draw_EAR:
+            elif (right_blink) and draw_EAR:
+                cv2.putText(annotated_image, "BLINKED RIGHT EYE", (annotated_image.shape[1] - 300, 90),
+							cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+            elif (left_blink) and draw_EAR:
                 # Blink detection message
-                cv2.putText(annotated_image, "RIGHT EYE BLINKED", (annotated_image.shape[1] - 300, 90),
+                cv2.putText(annotated_image, "BLINKED LEFT EYE", (30, 90),
                             cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
                 blink = True
 
@@ -241,6 +247,25 @@ class HeadPoseEstimator:
 
         ear = vertical_dist / horizontal_dist
         return ear
+
+    def __detect_glasses(self, srgb_image, detection_result):
+        face_landmarks_list = detection_result.face_landmarks
+        annotated_image = np.copy(srgb_image)
+        glasses_detected = False
+
+        for face_landmarks in face_landmarks_list:
+            h, w, _ = annotated_image.shape  # Image dimensions
+            for idx in list(LEFT_EYE_LANDMARKS.values()) + list(RIGHT_EYE_LANDMARKS.values()) + NOSE_LANDMARKS:
+                landmark = face_landmarks[idx]
+                if landmark.x < 0.25 or landmark.x > 0.8:  # Example condition, adjust based on tests
+                    glasses_detected = True
+                    break
+
+            # Print result
+            if glasses_detected:
+                cv2.putText(annotated_image, "Glasses Detected", (30, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
+
+        return annotated_image, glasses_detected
 
 if __name__ == "__main__":
     cap = cv2.VideoCapture(0)
