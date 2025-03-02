@@ -114,7 +114,7 @@ class Frontend(customtkinter.CTk):
             self.webcam_area.configure(text=str(countdown))
             self.after(1000, lambda: self.countDown(countdown-1))
         else:
-            self.updateVideoFeed()
+            self.start_model_and_camera()
 
     def start_model_and_camera(self):
         self.tracker = Tracker(self.sensitivity)

@@ -3,6 +3,7 @@ import numpy as np
 # play around with values 
 MAX_PITCH = 35
 MAX_YAW = 40
+NUM_PLACES_ROUND = 3
 
 class RotationVector:
     def __init__(self, roll, pitch, yaw):
@@ -28,6 +29,6 @@ def filterDeadzone(val, deadzone):
 def rot2MouseVector(rotation: RotationVector, sensitivity: SensitivityParams):
     scale = sensitivity.sensitivity
     thresh = sensitivity.deadzone
-    yaw = np.clip(rotation.yaw / MAX_YAW * scale, -1, 1)
-    pitch = np.clip(rotation.pitch / MAX_PITCH * scale, -1, 1)
+    yaw = np.clip(round(rotation.yaw / MAX_YAW, NUM_PLACES_ROUND) * scale, -1, 1)
+    pitch = np.clip(round(rotation.pitch / MAX_PITCH, NUM_PLACES_ROUND) * scale, -1, 1)
     return Vector(filterDeadzone(yaw, thresh), filterDeadzone(pitch, thresh))
