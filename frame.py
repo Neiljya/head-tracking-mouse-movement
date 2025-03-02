@@ -6,7 +6,7 @@ class Frame(customtkinter.CTkFrame):
 
         for row in range(row_count):
             self.grid_rowconfigure(row, weight=row_weight,minsize=0)
-        
+
         for col in range(col_count):
             self.grid_columnconfigure(col, weight=col_weight,minsize=0)
 
