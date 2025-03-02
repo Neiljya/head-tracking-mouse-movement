@@ -6,6 +6,7 @@ import cv2
 from PIL import Image, ImageTk
 import time
 import threading
+import speech_recognition as sr
 
 
 
@@ -22,6 +23,14 @@ class Frontend(customtkinter.CTk):
     BLINK_INTERVAL_RIGHT_CLICK_LABEL = "Blink Interval Right Click"
     COUNTDOWN_LABEL = "Countdown"
     
+    VOICE_COMMANDS = [
+        "start webcam - Starts the webcam feed",
+        "increase sensitivity - Increases sensitivity by 1",
+        "decrease sensitivity - Decreases sensitivity by 1",
+        "exit/quit - Closes the application",
+        "right click - (Right mouse click)",
+        "left click - (Left mouse click)"
+    ]
 
     def __init__(self, blinkIntervalLeftClick, blinkIntervalRightClick, sensitivity=1, countdown=3):
         super().__init__()
@@ -30,6 +39,7 @@ class Frontend(customtkinter.CTk):
         self.blinkIntervalRightClick = blinkIntervalRightClick
         self.countdown = countdown
 
+        
 
         import tkinter as tk
 
@@ -92,6 +102,13 @@ class Frontend(customtkinter.CTk):
         self.initSliders()
 
         self.cap = cv2.VideoCapture(0)
+
+
+        # Voice recognition setup
+        self.recognizer = sr.Recognizer()
+        self.microphone = sr.Microphone()
+        self.listening = False
+        self.start_listening()
 
     def countDown(self, countdown=3):
         if countdown is None:
@@ -286,11 +303,68 @@ class Frontend(customtkinter.CTk):
                                  pady=0,
                                  sticky="ew")
         
+        # Voice commands section with better formatting
+        self.voiceCommandsTextbox = customtkinter.CTkTextbox(self.testFrame, height=150, width=250, 
+                                                             font=("Arial", 12), wrap="word")
+        self.voiceCommandsTextbox.grid(row=3, column=0, columnspan=col_count, padx=20, pady=10, sticky="nsew")
+        
+        # Format the voice commands with bullets
+        formatted_commands = "Voice Commands:\n\n" + "\n".join([f"• {cmd}" for cmd in self.VOICE_COMMANDS])
+        self.voiceCommandsTextbox.insert("0.0", formatted_commands)
+        self.voiceCommandsTextbox.configure(state="disabled")
+        
         self.sensitivitySlider.set(self.sensitivity)
         self.blinkIntervalLeftSlider.set(self.blinkIntervalLeftClick)
         self.blinkIntervalRightSlider.set(self.blinkIntervalRightClick)
 
-        
+
+    def start_listening(self):
+        # Starts voice recognition on new thread
+        self.listening = True
+        self.voice_thread = threading.Thread(target = self.listen_for_commands, daemon = True)
+        self.voice_thread.start()
+
+    def listen_for_commands(self):
+        # Listens for commands during recording
+        with self.microphone as source:
+            self.recognizer.adjust_for_ambient_noise(source, duration = 1)
+            print("Voice recognition started. Say 'start webcam', 'increase sensitivity', etc.")
+            while self.listening:
+                try:
+                    audio = self.recognizer.listen(source, timeout = None)
+                    command = self.recognizer_google(audio).lower()
+                    print(f"Recognized command: {command}")
+                    self.process_command(command)
+                except sr.UnknownValueError:
+                    print("Could not understand audio.")
+                except sr.RequestError as e:
+                    print(f"Could not request results; {e}")
+                except Exception as e:
+                    print(f"Error in voice recognition: {e}")
+
+    def process_command(self, command):
+            # Process commands
+        if "start webcam" in command:
+            self.after(0, lambda: self.countDown(self.countdown))  # Run countdown on main thread
+        elif "increase sensitivity" in command:
+            current_sensitivity = self.sensitivitySlider.get()
+            new_sensitivity = min(current_sensitivity + 1, 10)  
+            self.after(0, lambda: self.sensitivitySlider.set(new_sensitivity))  
+            self.after(0, lambda: self.updateSensitivity(new_sensitivity))  
+        elif "decrease sensitivity" in command:
+            current_sensitivity = self.sensitivitySlider.get()
+            new_sensitivity = max(current_sensitivity - 1, 0) 
+            self.after(0, lambda: self.sensitivitySlider.set(new_sensitivity))
+            self.after(0, lambda: self.updateSensitivity(new_sensitivity))
+        elif "exit" in command or "quit" in command:
+            self.after(0, self.cleanup) 
+        elif "right click" in command:
+            pass
+        elif "left click" in command:
+            pass
+
+
+    
 
 
 
