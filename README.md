@@ -2,6 +2,8 @@
 ![Logo](/vislink_logo.png)
 ## Project Story
 It is without a doubt that computers have played a pivotal role within the lives of billions of people worldwide. However, as powerful as a tool computers are, most require physical interaction in order to access them - creating a barrier for those who suffer from mobility impairments due to limited hand functionality. There have been hardware configured specifically to cater to these individuals in the past, however, most of these extensions are very expensive and not everyone is able to afford them. As a solution, we envisioned VisLink - a hands free control software rather than hardware which only requires a working webcam (built into most laptops) to use, promoting accessibility to computers to those with mobility disabilities both physically and financially.
+## Overview
+![Overview Video](https://youtu.be/tmvy0offy78?si=VmxyAmEi2y0Ciz9E)
 ## Installation
 To start, clone the git repository
 ```
