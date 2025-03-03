@@ -16,10 +16,10 @@ MODEL_PATH = "backend/face_landmarker.task"
 # Define eye landmarks
 LEFT_EYE_LANDMARKS = {"top": 159, "bottom": 145, "outer": 133, "inner": 33}
 RIGHT_EYE_LANDMARKS = {"top": 386, "bottom": 374, "outer": 362, "inner": 263}
-EAR_THRESHOLD = 0.25
+
 NOSE_LANDMARKS = [1, 2, 168, 169]
-EAR_THRESHOLD = 0.2  # Adjust based on testing
-EAR_THRESHOLD_GLASSES = 0.4  # increase threshold to accommodate glasses
+EAR_THRESHOLD = 0.25  # Adjust based on testing
+EAR_THRESHOLD_GLASSES = 0.5  # increase threshold to accommodate glasses
 
 DEFAULT_SENSITIVITY = 1
 DEFAULT_DEADZONE = 0.05
@@ -159,7 +159,7 @@ class HeadPoseEstimator:
 				if abs(x1 - x2) < 10:  # Vertical line
 					cv2.line(roi, (x1, y1), (x2, y2), (0, 0, 255), 3)
 					#cv2.putText(image, "Stick detected", (nose_bridge_x - 50, nose_bridge_y - 50),
-								cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+					#cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 					return True  # Stick detected in the region
 >>>>>>> 08c7538 (s)
 
